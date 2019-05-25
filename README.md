@@ -1,0 +1,2 @@
+# GiphyAPI
+Giphy API
