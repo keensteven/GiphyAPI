@@ -1,0 +1,189 @@
+<!-- y3RKbwdcwI5G37tMKH33lLVSjQ4K5ymG -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Muli&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Favorite Movies</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- <style type="text/css">
+        button,
+        div,
+        form,
+        input {
+            margin: 0px;
+        }
+
+        body {
+            font-family: 'Muli', sans-serif;
+
+        }
+
+        button {
+<button type="button" class="btn btn-primary">
+
+            background-color: navy;
+            color: white;
+            padding: 12px;
+            border: 0px;
+            font-size: 15px;
+        } -->
+    </style>
+</head>
+
+<body>
+
+
+            <div class="jumbotron jumbotron-fluid">
+                    <div class="container text-center">
+                      <h1 class="display-4">Movie Search</h1>
+                      <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+                    </div>
+                  </div>
+
+        
+                  <div class="row">
+
+                        <div class="col-md-8">
+                        </div>
+                  
+                        <div class="col-md-4">
+                        </div>
+                  
+                      </div>
+        
+        
+        
+        
+                  <div class="container text-center pt-1 pr-5 pb-5 pl-5">
+
+        <!-- Rendered Buttons will get Dumped Here  -->
+        
+       <div id="buttons-view"></div>
+
+        <form id="movie-form">
+            <label for="movie-input">Add a Movie</label>
+            <input type="text" id="movie-input">
+            <br>
+            <!-- Button triggers new movie to be added -->
+            <button type="button" class="btn btn-primary m-3" id="add-movie" type="submit"> add a movie</button>
+        </form>
+
+        <!-- Movies will Get Dumped Here -->
+        <div id="movies-view"></div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            // Initial array of movies
+            var movies = ["Shrek", "Star Trek", "Star Wars", "The Terminator"];
+
+            // displayMovieInfo function re-renders the HTML to display the appropriate content
+            function displayMovieInfo() {
+
+                var movie = $(this).attr("data-name");
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+                    movie + "&api_key=y3RKbwdcwI5G37tMKH33lLVSjQ4K5ymG&limit=10";
+                // Creating an AJAX call for the specific movie button being clicked
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                }).then(function (response) {
+
+                    var results = response.data;
+
+                    for (var i = 0; i < results.length; i++) {
+                        // Creating a div to hold the movie
+                        var movieDiv = $("<div class='movie'>");
+
+
+
+                        // Creating an element to hold the image
+                        var image = $("<img>")
+
+                        image.attr("src", results[i].images.original_still.url);
+
+                        image.attr("giphy-still", results[i].images.original_still.url);
+
+                        image.attr("giphy-animated", results[i].images.original.url);
+
+                        image.attr("state", 'still');
+
+                        image.addClass('giphy')
+
+
+
+                        // Appending the image
+                        movieDiv.append(image);
+movieDiv.append(results[i].rating)
+                        // Putting the entire movie above the previous movies
+                        $("#movies-view").prepend(movieDiv);
+                    }
+                });
+
+            }
+            $(document).on("click", ".giphy", function () {
+                console.log("works")
+                var giphyStill = $(this).attr('giphy-still');
+                var giphyAnimated = $(this).attr('giphy-animated');
+                var state = $(this).attr('state');
+                console.log(giphyStill);
+                console.log(giphyAnimated)
+                if(state === 'still'){
+                    $(this).attr('src', giphyAnimated);
+                    $(this).attr('state', 'animated');
+                } else {
+                    $(this).attr('src', giphyStill);
+                    $(this).attr('state', 'still');
+                }
+                
+            });
+
+            // Function for displaying movie data
+            function renderButtons() {
+
+                // Deleting the movies prior to adding new movies
+                // (this is necessary otherwise you will have repeat buttons)
+                $("#buttons-view").empty();
+
+                // Looping through the array of movies
+                for (var i = 0; i < movies.length; i++) {
+
+                    // Then dynamicaly generating buttons for each movie in the array
+                    // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+                    var a = $("<button>");
+                    // Adding a class of movie-btn to our button
+                    a.addClass("movie-btn btn btn-primary m-2");
+                    // Adding a data-attribute
+                    a.attr("data-name", movies[i]);
+                    // Providing the initial button text
+                    a.text(movies[i]);
+                    // Adding the button to the buttons-view div
+                    $("#buttons-view").append(a);
+                }
+            }
+
+            // This function handles events where a movie button is clicked
+            $("#add-movie").on("click", function (event) {
+                event.preventDefault();
+                // This line grabs the input from the textbox
+                var movie = $("#movie-input").val().trim();
+
+                // Adding movie from the textbox to our array
+                movies.push(movie);
+
+                // Calling renderButtons which handles the processing of our movie array
+                renderButtons();
+            });
+
+            // Adding a click event listener to all elements with a class of "movie-btn"
+            $(document).on("click", ".movie-btn", displayMovieInfo);
+
+            // Calling the renderButtons function to display the intial buttons
+            renderButtons();
+        </script>
+    </div>
+</body>
+
+</html>

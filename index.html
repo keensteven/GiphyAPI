@@ -1,0 +1,181 @@
+<!-- y3RKbwdcwI5G37tMKH33lLVSjQ4K5ymG -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Muli:300&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Favorite Topics</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style type="text/css">
+        /* button,
+        div,
+        form,
+        input {
+            margin: 0px;
+        }
+*/
+        body {
+            font-family: 'Muli', sans-serif;
+        }
+
+        img {
+            width: 355px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container text-center">
+            <h1 class="display-4">Spiffy Gifs</h1>
+            <p class="lead mr-5 ml-5">Click the blue buttons to see a series of gifs. Type into the form field and click the gray button to
+                see images of some of your own favorite things. The images will animate when clicked.</p>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="card text-center pt-4 pr-5 pl-5 pb-2 m-5">
+
+            <div class="card-body">
+                <h5 class="card-title">Add more topics</h5>
+                <form id="topic-form" class="mt-0 mb-3">
+                        <input type="text" class="form-control centered !important" id="topic-input"
+                            placeholder="Type another topic here"><br>
+            
+                        <!-- Button triggers new topic to be added -->
+                        <button type="button" class="btn btn-secondary" id="add-topic" type="submit"> Add Topic </button>
+                    </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container text-center">
+
+
+
+
+        <!----------------------->
+        
+
+        <!-- Rendered Buttons will get Dumped Here  -->
+        <div id="buttons-view"></div>
+
+        <!-- Topics will Get Dumped Here -->
+
+        
+        <div id="topics-view" class="mt-3 mr-1 mb-5 ml-1"></div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            // Initial array of topics
+            var topics = ["Shrek", "Star Trek", "Star Wars", "The Terminator", "Buggs Bunny"];
+
+            // displayTopicInfo function re-renders the HTML to display the appropriate content
+            function displayTopicInfo() {
+
+                var topic = $(this).attr("data-name");
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+                    topic + "&api_key=y3RKbwdcwI5G37tMKH33lLVSjQ4K5ymG&limit=10";
+                // Creating an AJAX call for the specific topic button being clicked
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                }).then(function (response) {
+
+                    var results = response.data;
+
+                    for (var i = 0; i < results.length; i++) {
+                        // Creating a div to hold the topic
+                        var topicDiv = $("<div class='topic m-5'>");
+
+                        // Creating an element to hold the image and animate it
+                        var image = $("<img>")
+                        image.attr("src", results[i].images.original_still.url);
+                        image.attr("giphy-still", results[i].images.original_still.url);
+                        image.attr("giphy-animated", results[i].images.original.url);
+                        image.attr("state", 'still');
+                        image.addClass('giphy')
+
+                        // Appending the image
+                        topicDiv.append(image);
+                        topicDiv.append("<br>");
+                        topicDiv.append("Rating: ");
+
+                        topicDiv.append(results[i].rating)
+                        // Putting the entire topic above the previous topics
+                        $("#topics-view").prepend(topicDiv);
+                    }
+                });
+
+            }
+            $(document).on("click", ".giphy", function () {
+                console.log("works")
+                var giphyStill = $(this).attr('giphy-still');
+                var giphyAnimated = $(this).attr('giphy-animated');
+                var state = $(this).attr('state');
+                console.log(giphyStill);
+                console.log(giphyAnimated)
+                if (state === 'still') {
+                    $(this).attr('src', giphyAnimated);
+                    $(this).attr('state', 'animated');
+                } else {
+                    $(this).attr('src', giphyStill);
+                    $(this).attr('state', 'still');
+                }
+
+            });
+
+            // Function for displaying topic data
+            function renderButtons() {
+
+                // Deleting the topics prior to adding new topics
+                // (this is necessary otherwise you will have repeat buttons)
+                $("#buttons-view").empty();
+
+                // Looping through the array of topics
+                for (var i = 0; i < topics.length; i++) {
+
+                    // Then dynamicaly generating buttons for each topic in the array
+                    // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+                    var a = $("<button>");
+                    // Adding a class of topic-btn to our button
+                    a.addClass("topic-btn btn btn-primary m-2");
+                    // Adding a data-attribute
+                    a.attr("data-name", topics[i]);
+                    // Providing the initial button text
+                    a.text(topics[i]);
+                    // Adding the button to the buttons-view div
+                    $("#buttons-view").append(a);
+                }
+            }
+
+            // This function handles events where a topic button is clicked
+            $("#add-topic").on("click", function (event) {
+                event.preventDefault();
+                // This line grabs the input from the textbox
+                var topic = $("#topic-input").val().trim();
+
+                // Adding topic from the textbox to our array
+                topics.push(topic);
+
+                // Calling renderButtons which handles the processing of our topic array
+                renderButtons();
+            });
+
+            // Adding a click event listener to all elements with a class of "topic-btn"
+            $(document).on("click", ".topic-btn", displayTopicInfo);
+
+            // Calling the renderButtons function to display the intial buttons
+            renderButtons();
+        </script>
+    </div>
+</body>
+
+</html>
