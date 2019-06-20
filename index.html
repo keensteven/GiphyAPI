@@ -1,0 +1,237 @@
+<!-- y3RKbwdcwI5G37tMKH33lLVSjQ4K5ymG -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Muli:300,800&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Favorite Topics</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style type="text/css">
+        h1 {
+            font-weight: 800 !important;
+            letter-spacing: -1px;
+
+            color: white;
+        }
+
+        .btn {
+            width: 153px;
+            height: 44px;
+            background-color: #1e2e3d !important;
+            color: #ffffff;
+        }
+
+        .btn:focus,
+        .btn:active:focus,
+        .btn.active:focus {
+            outline: 0 none;
+            border: 0 none;
+        }
+
+        .btn-secondary {
+            background-color: #7a878d !important;
+            color: #ffffff;
+            box-shadow: none !important;
+            border-color: #7a878d;
+            border: 0 none;
+        }
+
+        .btn-primary {
+            background-color: #1e2e3d !important;
+            color: #ffffff;
+            box-shadow: none !important;
+            border-color: #1e2e3d;
+            border: 0 none;
+        }
+
+        body {
+            font-family: 'Muli', sans-serif;
+        }
+
+        img {
+            width: 320px;
+        }
+
+        .img-fluid {
+            width: 100%;
+        }
+
+        #topics-view {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .jumbotron {
+            background-color: #4a77aa !important;
+            color: #ffffff;
+        }
+
+        .card-header {
+            background-color: #8d8d8d !important;
+            color: #ffffff;
+            font-family: 'Muli', sans-serif;
+            font-weight: 800;
+        }
+
+        .form-control:focus {
+            border-color: #b1b1b1;
+            box-shadow: none;
+            -webkit-box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container text-center">
+            <h1 class="display-4" id="name">Spiffy Gifs</h1>
+            <p class="lead mr-5 ml-5">Click the dark blue buttons to see a series of gifs. Type into the form field and
+                click
+                the gray button to
+                add images of your favorite things. The images will animate when clicked.</p>
+        </div>
+    </div>
+
+
+    <div class="container mt-5">
+        <div class="card text-center">
+            <img class="img-fluid" src="lemons_hero.jpg" alt="lemons photo">
+
+            <div class="card-body pt-1 pr-5 pl-5 pb-0 m-5">
+                <h5 class="card-title">Add more topics</h5>
+                <form id="topic-form" class="mb-0">
+                    <input type="text" class="form-control" id="topic-input" placeholder="Type another topic here"><br>
+
+                    <!-- Button triggers new topic to be added -->
+                    <button type="button" class="btn btn-secondary" id="add-topic" type="submit"> Add Topic </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container text-center">
+
+        <div class="container pt-5 pl-5 pr-5 pb-2">
+            <!-- Rendered Buttons will get Dumped Here  -->
+            <div id="buttons-view"></div>
+        </div>
+
+
+        <!-- Topics will Get Dumped Here -->
+        <div id="topics-view" class="container mb-5"></div>
+
+        <div class="alert alert-light mt-5 mb-5 pt-5 text-center small" role="alert">
+                Photo of lemons by <a href="https://unsplash.com/@stickermule">Sticker Mule</a> on <a href="https://unsplash.com/">Unsplash</a>.
+              </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            // Initial array of topics
+            var topics = ["Shrek", "Star Trek", "Star Wars", "The Terminator", "Buggs Bunny"];
+
+            // displayTopicInfo function re-renders the HTML to display the appropriate content
+            function displayTopicInfo() {
+
+                var topic = $(this).attr("data-name");
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+                    topic + "&api_key=y3RKbwdcwI5G37tMKH33lLVSjQ4K5ymG&limit=10";
+                // Creating an AJAX call for the specific topic button being clicked
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                }).then(function (response) {
+
+                    var results = response.data;
+
+                    for (var i = 0; i < results.length; i++) {
+                        // Creating a div to hold the images
+                        var topicDiv = $("<div class='topic mt-5 ml-3 mb-2 mr-3'>");
+
+                        // Creating an element to hold the image and animate it
+                        var image = $("<img>")
+                        image.attr("src", results[i].images.original_still.url);
+                        image.attr("giphy-still", results[i].images.original_still.url);
+                        image.attr("giphy-animated", results[i].images.original.url);
+                        image.attr("state", 'still');
+                        image.addClass('giphy')
+
+                        // Appending the image
+                        topicDiv.append(image);
+                        topicDiv.append("<br>");
+                        topicDiv.append("Rating: ");
+
+                        topicDiv.append(results[i].rating)
+                        // Putting the entire topic above the previous topics
+                        $("#topics-view").prepend(topicDiv);
+                    }
+                });
+
+            }
+            $(document).on("click", ".giphy", function () {
+                console.log("works")
+                var giphyStill = $(this).attr('giphy-still');
+                var giphyAnimated = $(this).attr('giphy-animated');
+                var state = $(this).attr('state');
+                console.log(giphyStill);
+                console.log(giphyAnimated)
+                if (state === 'still') {
+                    $(this).attr('src', giphyAnimated);
+                    $(this).attr('state', 'animated');
+                } else {
+                    $(this).attr('src', giphyStill);
+                    $(this).attr('state', 'still');
+                }
+
+            });
+
+            // Function for displaying topic data
+            function renderButtons() {
+
+                // Deleting the topics prior to adding new topics
+                // (this is necessary otherwise you will have repeat buttons)
+                $("#buttons-view").empty();
+
+                // Looping through the array of topics
+                for (var i = 0; i < topics.length; i++) {
+
+                    // Then dynamicaly generating buttons for each topic in the array
+                    // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+                    var a = $("<button>");
+                    // Adding a class of topic-btn to our button
+                    a.addClass("topic-btn btn btn-primary mt-1 ml-2 mr-2 mb-3");
+                    // Adding a data-attribute
+                    a.attr("data-name", topics[i]);
+                    // Providing the initial button text
+                    a.text(topics[i]);
+                    // Adding the button to the buttons-view div
+                    $("#buttons-view").append(a);
+                }
+            }
+
+            // This function handles events where a topic button is clicked
+            $("#add-topic").on("click", function (event) {
+                event.preventDefault();
+                // This line grabs the input from the textbox
+                var topic = $("#topic-input").val().trim();
+
+                // Adding topic from the textbox to our array
+                topics.push(topic);
+
+                // Calling renderButtons which handles the processing of our topic array
+                renderButtons();
+            });
+
+            // Adding a click event listener to all elements with a class of "topic-btn"
+            $(document).on("click", ".topic-btn", displayTopicInfo);
+
+            // Calling the renderButtons function to display the intial buttons
+            renderButtons();
+        </script>
+    </div>
+</body>
+
+</html>
